@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Arsip Kamil - Vault Sertifikat Digital</title>
+
+  <!-- PWA & SEO Meta Tags -->
+  <meta name="description" content="Platform pribadi mobile-first untuk menyimpan, mengelola, mencari, memverifikasi, dan mengunduh sertifikat digital.">
+  <meta name="theme-color" content="#021E1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Arsip Kamil">
+  <meta property="og:title" content="Arsip Kamil - Vault Sertifikat Digital">
+  <meta property="og:description" content="Simpan dan verifikasi sertifikat digital dengan aman.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon & Icons -->
+  <link rel="icon" type="image/png" href="https://img.icons8.com/isometric/96/certificate.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/isometric/180/certificate.png">
+
+  <!-- Web App Manifest (Inlined via Data URI) -->
+  <link rel="manifest" href='data:application/json,{"name":"Arsip Kamil","short_name":"ArsipKamil","start_url":".","display":"standalone","background_color":"#021E1A","theme_color":"#021E1A","icons":[{"src":"https://img.icons8.com/isometric/192/certificate.png","sizes":"192x192","type":"image/png"},{"src":"https://img.icons8.com/isometric/512/certificate.png","sizes":"512x512","type":"image/png"}]}'>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- SweetAlert2 CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- QRCode.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- HTML5-QRCode CDN untuk Scanner -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+  <style>
+    /* ==========================================================================
+       1. VARIABLES & RESET (Mobile First Dark Emerald Glassmorphism)
+       ========================================================================== */
+    :root {
+      --bg-gradient: linear-gradient(180deg, #021E1A 0%, #063A32 50%, #0A5B4C 100%);
+      --primary: #22C55E;
+      --secondary: #10B981;
+      --accent: #34D399;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --glass-bg: rgba(255, 255, 255, 0.07);
+      --glass-card: rgba(6, 45, 39, 0.55);
+      --glass-border: rgba(52, 211, 153, 0.18);
+      --glass-blur: blur(25px);
+      --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(34, 197, 94, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --font-pop: 'Poppins', sans-serif;
+      --font-int: 'Inter', sans-serif;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-int);
+      background: #021E1A;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-x: hidden;
+    }
+
+    /* Target Layar Mobile (320px - 480px) */
+    #app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 90px;
+    }
+
+    /* Scrollbar Styling */
+    #app-container::-webkit-scrollbar { width: 4px; }
+    #app-container::-webkit-scrollbar-thumb { background: rgba(52, 211, 153, 0.3); border-radius: 10px; }
+
+    /* ==========================================================================
+       2. GLASSMORPHISM COMPONENTS & UTILITIES
+       ========================================================================== */
+    .glass-card {
+      background: var(--glass-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .glass-input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: var(--font-int);
+      font-size: 14px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .glass-input:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #021E1A;
+      font-weight: 700;
+      font-family: var(--font-pop);
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+      transition: var(--transition);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-weight: 600;
+      font-family: var(--font-pop);
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:active { background: rgba(255, 255, 255, 0.15); }
+
+    /* ==========================================================================
+       3. SPLASH SCREEN
+       ========================================================================== */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg-gradient);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      max-width: 480px;
+      margin: 0 auto;
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+
+    .splash-logo-box {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,185,129,0.1));
+      border: 2px solid var(--accent);
+      border-radius: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      color: var(--accent);
+      box-shadow: 0 0 35px rgba(52,211,153,0.4);
+      animation: pulseLogo 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseLogo {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 35px rgba(52,211,153,0.4); }
+      50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(52,211,153,0.7); }
+    }
+
+    /* Loader Spinner */
+    .loader-ring {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* ==========================================================================
+       4. PAGES FRAMEWORK & AUTH PAGE
+       ========================================================================== */
+    .page {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Login Page Styling */
+    #page-auth { min-height: 100vh; padding: 40px 24px; display: flex; flex-direction: column; justify-content: center; }
+
+    /* ==========================================================================
+       5. HEADER & DASHBOARD
+       ========================================================================== */
+    .header-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .user-profile-info { display: flex; align-items: center; gap: 12px; }
+
+    .avatar-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 10px rgba(52,211,153,0.3);
+    }
+
+    .notification-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--accent);
+      font-size: 18px;
+      position: relative;
+    }
+
+    /* Search & Filter Bar */
+    .search-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      width: 50px;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 20px;
+      font-weight: 800;
+      font-family: var(--font-pop);
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Categories Horizontal Scroll */
+    .category-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+
+    .cat-chip {
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .cat-chip.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #021E1A;
+      font-weight: 700;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+    }
+
+    /* Certificate Grid & Cards */
+    .cert-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .cert-card {
+      padding: 16px;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .cert-card:active { transform: scale(0.98); }
+
+    .cert-preview-wrapper {
+      width: 100%;
+      height: 160px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+      background: #000;
+    }
+
+    .cert-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cert-badge-verified {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(34, 197, 94, 0.9);
+      color: #021E1A;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .cert-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .icon-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .icon-action-btn:hover, .icon-action-btn.active { color: var(--accent); }
+
+    /* Floating Action Button (FAB) */
+    .fab-upload {
+      position: fixed;
+      bottom: 85px;
+      right: calc(50% - 220px + 20px);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #021E1A;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
+      z-index: 900;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    @media (max-width: 480px) {
+      .fab-upload { right: 20px; }
+    }
+
+    .fab-upload:active { transform: scale(0.9); }
+
+    /* ==========================================================================
+       6. BOTTOM NAVIGATION BAR
+       ========================================================================== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 70px;
+      background: rgba(2, 30, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-style: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      font-size: 11px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .nav-item i { font-size: 18px; }
+
+    .nav-item.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       7. BOTTOM SHEET (MODAL)
+       ========================================================================== */
+    .bottom-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .bottom-sheet-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .bottom-sheet-content {
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      background: #063A32;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      border-top: 1px solid var(--glass-border);
+      padding: 24px;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .bottom-sheet-overlay.active .bottom-sheet-content {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      margin: 0 auto 18px auto;
+    }
+
+    /* ==========================================================================
+       8. SKELETON LOADING
+       ========================================================================== */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: skeletonLoading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeletonLoading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ==========================================================================
+       9. EMPTY STATE
+       ========================================================================== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .empty-icon {
+      font-size: 60px;
+      color: rgba(52, 211, 153, 0.3);
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SPLASH SCREEN
+       ========================================================================== -->
+  <div id="splash-screen">
+    <div class="splash-logo-box">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <h2 style="font-family: var(--font-pop); margin-top: 16px; font-weight: 800; letter-spacing: 1px;">
+      ARSIP <span style="color: var(--accent);">KAMIL</span>
+    </h2>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Vault Sertifikat Digital Mobile</p>
+    <div style="margin-top: 40px;">
+      <div class="loader-ring"></div>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER (MAX-WIDTH 480PX MOBILE FIRST) -->
+  <div id="app-container">
+
+    <!-- ==========================================================================
+         PAGE 1: AUTHENTICATION (LOGIN / REGISTER)
+         ========================================================================== -->
+    <section id="page-auth" class="page">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div class="splash-logo-box" style="width: 70px; height: 70px; font-size: 30px; margin: 0 auto;">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <h2 style="font-family: var(--font-pop); margin-top: 14px; font-size: 22px;">Masuk ke Arsip Kamil</h2>
+        <p style="font-size: 13px; color: var(--text-muted);">Kelola semua sertifikat digital Anda di satu tempat</p>
+      </div>
+
+      <div class="glass-card" style="padding: 24px;">
+        <form id="form-login" onsubmit="handleEmailLogin(event)">
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;">Email</label>
+            <input type="email" id="auth-email" class="glass-input" placeholder="nama@email.com" required>
+          </div>
+
+          <div style="margin-bottom: 14px; position: relative;">
+            <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;">Kata Sandi</label>
+            <input type="password" id="auth-password" class="glass-input" placeholder="••••••••" required>
+            <i class="fa-solid fa-eye" id="toggle-pwd" onclick="togglePasswordVisibility()" style="position: absolute; right: 15px; top: 38px; color: var(--text-muted); cursor: pointer;"></i>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 12px;">
+            <label style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer;">
+              <input type="checkbox" id="remember-me" style="accent-color: var(--primary);"> Ingat Saya
+            </label>
+            <a href="#" onclick="handleForgotPassword()" style="color: var(--accent); text-decoration: none;">Lupa Sandi?</a>
+          </div>
+
+          <button type="submit" id="btn-login" class="btn-primary">
+            <span>Masuk</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <div style="text-align: center; margin: 18px 0; font-size: 12px; color: var(--text-muted);">atau masuk dengan</div>
+
+        <button class="btn-secondary" onclick="handleGoogleLogin()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
+          <span>Google Account</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         PAGE 2: DASHBOARD
+         ========================================================================== -->
+    <section id="page-dashboard" class="page active">
+      <!-- User Header -->
+      <div class="header-user">
+        <div class="user-profile-info">
+          <img src="https://ui-avatars.com/api/?name=Kamil+User&background=10B981&color=fff" id="user-avatar" class="avatar-img" alt="Avatar">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Halo,</div>
+            <div id="user-display-name" style="font-size: 16px; font-weight: 700; font-family: var(--font-pop);">User</div>
+          </div>
+        </div>
+        <div class="notification-btn" onclick="Swal.fire({title:'Notifikasi', text:'Tidak ada notifikasi baru', icon:'info', background:'#063A32', color:'#fff'})">
+          <i class="fa-regular fa-bell"></i>
+        </div>
+      </div>
+
+      <!-- Realtime Search & Filter Trigger -->
+      <div class="search-container">
+        <div style="position: relative; flex: 1;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 15px; color: var(--text-muted);"></i>
+          <input type="text" id="search-input" class="glass-input" style="padding-left: 40px;" placeholder="Cari sertifikat, nomor, penyelenggara..." oninput="debounceSearch()">
+        </div>
+        <div class="filter-btn" onclick="openBottomSheet('sheet-filter')">
+          <i class="fa-solid fa-sliders"></i>
+        </div>
+      </div>
+
+      <!-- Statistics Dashboard -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-number" id="stat-total">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-number" id="stat-verified" style="color: var(--accent);">0</div>
+          <div class="stat-label">Verifikasi</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-number" id="stat-unverified" style="color: var(--warning);">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+
+      <!-- Categories Scroll Horizontal -->
+      <div class="category-scroll" id="category-chips">
+        <div class="cat-chip active" onclick="filterByCategory('Semua', this)">Semua</div>
+        <div class="cat-chip" onclick="filterByCategory('Kuliah', this)">Kuliah</div>
+        <div class="cat-chip" onclick="filterByCategory('Seminar', this)">Seminar</div>
+        <div class="cat-chip" onclick="filterByCategory('Workshop', this)">Workshop</div>
+        <div class="cat-chip" onclick="filterByCategory('Pelatihan', this)">Pelatihan</div>
+        <div class="cat-chip" onclick="filterByCategory('Kompetisi', this)">Kompetisi</div>
+        <div class="cat-chip" onclick="filterByCategory('Organisasi', this)">Organisasi</div>
+        <div class="cat-chip" onclick="filterByCategory('Webinar', this)">Webinar</div>
+        <div class="cat-chip" onclick="filterByCategory('Bootcamp', this)">Bootcamp</div>
+        <div class="cat-chip" onclick="filterByCategory('Lainnya', this)">Lainnya</div>
+      </div>
+
+      <!-- Certificate Grid / List -->
+      <div class="cert-grid" id="cert-container">
+        <!-- Skeleton Loading State Initial -->
+        <div class="glass-card skeleton" style="height: 220px;"></div>
+        <div class="glass-card skeleton" style="height: 220px;"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         PAGE 3: VERIFY CERTIFICATE
+         ========================================================================== -->
+    <section id="page-verify" class="page">
+      <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Verifikasi Sertifikat</h3>
+      
+      <div class="glass-card" style="padding: 20px; margin-bottom: 20px; text-align: center;">
+        <i class="fa-solid fa-qrcode" style="font-size: 40px; color: var(--accent); margin-bottom: 10px;"></i>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Masukkan Nomor Sertifikat atau Pindai QR Code untuk menguji keaslian.</p>
+        
+        <input type="text" id="verify-input-number" class="glass-input" placeholder="Masukkan Nomor Sertifikat..." style="margin-bottom: 12px; text-align: center;">
+        
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" onclick="verifyCertificateByNumber()"><i class="fa-solid fa-magnifying-glass"></i> Cek Nomor</button>
+          <button class="btn-secondary" onclick="startQRScanner()"><i class="fa-solid fa-camera"></i> Scan QR</button>
+        </div>
+      </div>
+
+      <!-- Container Scanner Camera -->
+      <div id="qr-reader-container" class="glass-card" style="display: none; padding: 15px; margin-bottom: 20px;">
+        <div id="qr-reader" style="width: 100%;"></div>
+        <button class="btn-secondary" style="margin-top: 10px; background: rgba(239, 68, 68, 0.2);" onclick="stopQRScanner()">Tutup Kamera</button>
+      </div>
+
+      <!-- Verification Result View -->
+      <div id="verify-result-box"></div>
+    </section>
+
+    <!-- ==========================================================================
+         PAGE 4: ACTIVITY HISTORY
+         ========================================================================== -->
+    <section id="page-history" class="page">
+      <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Riwayat Aktivitas</h3>
+      <div id="history-list" class="glass-card" style="padding: 10px;">
+        <!-- Filled dynamically -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         PAGE 5: USER PROFILE
+         ========================================================================== -->
+    <section id="page-profile" class="page">
+      <div class="glass-card" style="padding: 24px; text-align: center; margin-bottom: 20px;">
+        <img src="" id="profile-page-avatar" class="avatar-img" style="width: 80px; height: 80px; margin: 0 auto 12px auto;" alt="Profile">
+        <h3 id="profile-page-name" style="font-family: var(--font-pop);">User</h3>
+        <p id="profile-page-email" style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">email@domain.com</p>
+        <div style="display: flex; justify-content: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-sm);">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Tersimpan</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--accent);" id="profile-total-cert">0</div>
+          </div>
+          <div style="border-right: 1px solid rgba(255,255,255,0.1);"></div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted);">Status Vault</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--primary);">Aktif</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding: 10px; margin-bottom: 20px;">
+        <div style="padding: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span><i class="fa-solid fa-shield-halved" style="color: var(--accent); margin-right: 10px;"></i> Keamanan Data</span>
+          <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: var(--text-muted);"></i>
+        </div>
+        <div style="padding: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span><i class="fa-solid fa-circle-info" style="color: var(--accent); margin-right: 10px;"></i> Tentang Aplikasi</span>
+          <span style="font-size: 12px; color: var(--text-muted);">v2.4.0 (2026)</span>
+        </div>
+      </div>
+
+      <button class="btn-secondary" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border-color: rgba(239,68,68,0.3);" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Keluar Akun
+      </button>
+    </section>
+
+    <!-- ==========================================================================
+         PAGE 6: CERTIFICATE DETAIL PAGE
+         ========================================================================== -->
+    <section id="page-detail" class="page">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <button class="icon-action-btn" onclick="navigateTo('dashboard')"><i class="fa-solid fa-arrow-left" style="font-size: 20px; color: var(--accent);"></i></button>
+        <h3 style="font-family: var(--font-pop);">Detail Sertifikat</h3>
+      </div>
+      <div id="detail-container"></div>
+    </section>
+
+    <!-- FLOATING ACTION BUTTON (UPLOAD) -->
+    <div class="fab-upload" id="fab-upload-btn" onclick="openBottomSheet('sheet-upload')">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+
+    <!-- ==========================================================================
+         BOTTOM NAVIGATION BAR
+         ========================================================================== -->
+    <nav class="bottom-nav" id="main-bottom-nav">
+      <div class="nav-item active" onclick="navigateTo('dashboard', this)">
+        <i class="fa-solid fa-house"></i>
+        <span>Beranda</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('verify', this)">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Verifikasi</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('history', this)">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>Riwayat</span>
+      </div>
+      <div class="nav-item" onclick="navigateTo('profile', this)">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ==========================================================================
+       BOTTOM SHEET 1: UPLOAD CERTIFICATE FORM
+       ========================================================================== -->
+  <div class="bottom-sheet-overlay" id="sheet-upload">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle"></div>
+      <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Upload Sertifikat Baru</h3>
+
+      <form id="form-upload-cert" onsubmit="handleUploadCertificate(event)">
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nama Sertifikat *</label>
+          <input type="text" id="up-title" class="glass-input" placeholder="Contoh: AWS Certified Solutions Architect" required>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Penyelenggara / Penerbit *</label>
+          <input type="text" id="up-issuer" class="glass-input" placeholder="Contoh: Amazon Web Services / Dicoding" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Kategori *</label>
+            <select id="up-category" class="glass-input" style="background: #063A32;" required>
+              <option value="Kuliah">Kuliah</option>
+              <option value="Seminar">Seminar</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Pelatihan">Pelatihan</option>
+              <option value="Kompetisi">Kompetisi</option>
+              <option value="Organisasi">Organisasi</option>
+              <option value="Webinar">Webinar</option>
+              <option value="Bootcamp">Bootcamp</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Tanggal Terbit *</label>
+            <input type="date" id="up-date" class="glass-input" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nomor Sertifikat *</label>
+          <input type="text" id="up-number" class="glass-input" placeholder="AK-2026-XXXXX" required>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Deskripsi / Catatan</label>
+          <textarea id="up-desc" class="glass-input" rows="2" placeholder="Catatan singkat mengenai sertifikat ini..."></textarea>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Upload Gambar (Max 10MB) *</label>
+          <input type="file" id="up-file-img" class="glass-input" accept="image/*" required>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Upload PDF (Max 25MB) [Opsional]</label>
+          <input type="file" id="up-file-pdf" class="glass-input" accept="application/pdf">
+        </div>
+
+        <!-- Progress Bar Upload -->
+        <div id="upload-progress-container" style="display: none; margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">
+            <span>Mengunggah ke Cloudinary...</span>
+            <span id="upload-percentage">0%</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+            <div id="upload-progress-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.2s;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="closeBottomSheet('sheet-upload')">Batal</button>
+          <button type="submit" id="btn-submit-upload" class="btn-primary">Simpan Sertifikat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       BOTTOM SHEET 2: FILTER & SORTING
+       ========================================================================== -->
+  <div class="bottom-sheet-overlay" id="sheet-filter">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle"></div>
+      <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Filter & Urutkan</h3>
+
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Urutkan Berdasarkan</label>
+        <select id="filter-sort" class="glass-input" style="background: #063A32;">
+          <option value="newest">Terbaru Ditambahkan</option>
+          <option value="oldest">Terlama Ditambahkan</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Status Verifikasi</label>
+        <select id="filter-status" class="glass-input" style="background: #063A32;">
+          <option value="all">Semua Status</option>
+          <option value="verified">Terverifikasi</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" onclick="applyAdvancedFilter()">Terapkan Filter</button>
+    </div>
+  </div>
+
+  <!-- Hidden Container tempat QRCode.js meng-generate QR DOM -->
+  <div id="qrcode-temp" style="display: none;"></div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT APP LOGIC & SDK INTEGRATION
+       ========================================================================== -->
+  <!-- Firebase SDK Modular / Compat CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    /* ==========================================================================
+       1. CONFIGURATIONS (FIREBASE & CLOUDINARY HASIL UPDATE)
+       ========================================================================== */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtuVo1-Ic6PeNGdLzYSlOZza-66yf0jic",
+      authDomain: "data-sertifikat-kamil.firebaseapp.com",
+      projectId: "data-sertifikat-kamil",
+      storageBucket: "data-sertifikat-kamil.firebasestorage.app",
+      messagingSenderId: "14631676587",
+      appId: "1:14631676587:web:d37923d00dde7c9b8de5ee",
+      measurementId: "G-C4B82K1KKH"
+    };
+
+    const cloudinaryConfig = {
+      cloudName: "dr3evkwcu",
+      uploadPreset: "data sertifikat kamil",
+      apiUrl: "https://api.cloudinary.com/v1_1/dr3evkwcu/auto/upload"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    /* ==========================================================================
+       2. GLOBAL STATE & UTILITIES
+       ========================================================================== */
+    let currentUser = null;
+    let certificatesData = [];
+    let activeCategory = 'Semua';
+    let debounceTimer = null;
+    let html5QrCodeScanner = null;
+
+    // Toast Notification SweetAlert2 Helper
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#063A32',
+      color: '#fff'
+    });
+
+    // Helper Utility Sanitize Input (Anti-XSS)
+    function sanitize(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    // Helper UUID Generator
+    function generateUUID() {
+      return 'ax-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+    }
+
+    /* ==========================================================================
+       3. LIFECYCLE & AUTHENTICATION
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      // Hide Splash Screen delay
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        splash.style.opacity = '0';
+        setTimeout(() => splash.style.display = 'none', 600);
+      }, 1200);
+
+      // Check URL parameters for direct verification link (?id=xxxx)
+      const urlParams = new URLSearchParams(window.location.search);
+      const verifyId = urlParams.get('id') || urlParams.get('verify');
+      if (verifyId) {
+        navigateTo('verify');
+        document.getElementById('verify-input-number').value = verifyId;
+        verifyCertificateByNumber();
+      }
+    });
+
+    // Firebase Auth Observer
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('user-display-name').innerText = user.displayName || user.email.split('@')[0];
+        document.getElementById('user-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=10B981&color=fff`;
+        
+        document.getElementById('profile-page-name').innerText = user.displayName || user.email;
+        document.getElementById('profile-page-email').innerText = user.email;
+        document.getElementById('profile-page-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=10B981&color=fff`;
+
+        document.getElementById('page-auth').classList.remove('active');
+        document.getElementById('main-bottom-nav').style.display = 'flex';
+        document.getElementById('fab-upload-btn').style.display = 'flex';
+
+        // Bind Realtime Firestore
+        listenRealtimeCertificates();
+      } else {
+        currentUser = null;
+        document.getElementById('page-auth').classList.add('active');
+        document.getElementById('main-bottom-nav').style.display = 'none';
+        document.getElementById('fab-upload-btn').style.display = 'none';
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-auth').classList.add('active');
+      }
+    });
+
+    // Password Visibility Toggle
+    function togglePasswordVisibility() {
+      const input = document.getElementById('auth-password');
+      const icon = document.getElementById('toggle-pwd');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-slash', 'fa-eye');
+      }
+    }
+
+    // Email Login
+    async function handleEmailLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const pwd = document.getElementById('auth-password').value;
+      const btn = document.getElementById('btn-login');
+
+      btn.innerHTML = `<div class="loader-ring" style="width:18px;height:18px;"></div> Memproses...`;
+      btn.disabled = true;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, pwd);
+        Toast.fire({ icon: 'success', title: 'Berhasil Masuk!' });
+      } catch (err) {
+        // Fallback Auto-register jika user belum ada
+        try {
+          await auth.createUserWithEmailAndPassword(email, pwd);
+          Toast.fire({ icon: 'success', title: 'Akun Baru Berhasil Dibuat!' });
+        } catch (regErr) {
+          Toast.fire({ icon: 'error', title: regErr.message });
+        }
+      } finally {
+        btn.innerHTML = `<span>Masuk</span> <i class="fa-solid fa-arrow-right"></i>`;
+        btn.disabled = false;
+      }
+    }
+
+    // Google Login
+    async function handleGoogleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth.signInWithPopup(provider);
+        Toast.fire({ icon: 'success', title: 'Login Google Berhasil!' });
+      } catch (err) {
+        Toast.fire({ icon: 'error', title: err.message });
+      }
+    }
+
+    // Lupa Password
+    function handleForgotPassword() {
+      Swal.fire({
+        title: 'Reset Password',
+        input: 'email',
+        inputPlaceholder: 'Masukkan email Anda',
+        showCancelButton: true,
+        confirmButtonText: 'Kirim Link',
+        background: '#063A32',
+        color: '#fff'
+      }).then(async (result) => {
+        if (result.isConfirmed && result.value) {
+          try {
+            await auth.sendPasswordResetEmail(result.value);
+            Toast.fire({ icon: 'success', title: 'Email reset dikirim!' });
+          } catch (e) {
+            Toast.fire({ icon: 'error', title: e.message });
+          }
+        }
+      });
+    }
+
+    // Logout
+    function handleLogout() {
+      Swal.fire({
+        title: 'Keluar Akun?',
+        text: 'Anda akan keluar dari Vault Arsip Kamil.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Keluar',
+        background: '#063A32',
+        color: '#fff'
+      }).then(res => {
+        if (res.isConfirmed) {
+          auth.signOut();
+          Toast.fire({ icon: 'info', title: 'Anda telah keluar' });
+        }
+      });
+    }
+
+    /* ==========================================================================
+       4. NAVIGATION & BOTTOM SHEET CONTROLLER
+       ========================================================================== */
+    function navigateTo(pageId, navElement = null) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) target.classList.add('active');
+
+      if (navElement) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        navElement.classList.add('active');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function openBottomSheet(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeBottomSheet(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Overlay Close Click Listener
+    document.querySelectorAll('.bottom-sheet-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+
+    /* ==========================================================================
+       5. FIRESTORE REALTIME LISTENER & RENDER
+       ========================================================================== */
+    function listenRealtimeCertificates() {
+      if (!currentUser) return;
+
+      db.collection('certificates')
+        .where('ownerUid', '==', currentUser.uid)
+        .onSnapshot(snapshot => {
+          certificatesData = [];
+          snapshot.forEach(doc => {
+            certificatesData.push({ id: doc.id, ...doc.data() });
+          });
+          
+          updateDashboardStats();
+          renderCertificates(certificatesData);
+        }, err => {
+          console.error("Firestore Listen Error:", err);
+        });
+    }
+
+    function updateDashboardStats() {
+      const total = certificatesData.length;
+      const verified = certificatesData.filter(c => c.verified).length;
+      const unverified = total - verified;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-verified').innerText = verified;
+      document.getElementById('stat-unverified').innerText = unverified;
+      document.getElementById('profile-total-cert').innerText = total;
+    }
+
+    function renderCertificates(data) {
+      const container = document.getElementById('cert-container');
+      
+      let filtered = [...data];
+      if (activeCategory !== 'Semua') {
+        filtered = filtered.filter(c => c.category === activeCategory);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card empty-state">
+            <i class="fa-solid fa-folder-open empty-icon"></i>
+            <h4 style="font-family: var(--font-pop);">Belum Ada Sertifikat</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Klik tombol '+' di bawah untuk menyimpan sertifikat pertama Anda.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div class="glass-card cert-card" onclick="openCertificateDetail('${item.id}')">
+          <div class="cert-preview-wrapper">
+            <img src="${sanitize(item.imageUrl)}" class="cert-preview-img" alt="Sertifikat" loading="lazy">
+            <div class="cert-badge-verified">
+              <i class="fa-solid fa-shield-check"></i> ${item.verified ? 'VERIFIED' : 'PENDING'}
+            </div>
+          </div>
+          
+          <div style="font-size: 11px; color: var(--accent); font-weight: 600;">${sanitize(item.category)}</div>
+          <h4 style="font-family: var(--font-pop); font-size: 15px; margin: 2px 0;">${sanitize(item.title)}</h4>
+          <div style="font-size: 12px; color: var(--text-muted);">${sanitize(item.issuer)} • ${sanitize(item.date)}</div>
+
+          <div class="cert-actions" onclick="event.stopPropagation()">
+            <span style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-hashtag"></i> ${sanitize(item.number)}</span>
+            <div>
+              <button class="icon-action-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}', ${!item.favorite})">
+                <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
+              </button>
+              <button class="icon-action-btn" onclick="shareCertificate('${item.id}')"><i class="fa-solid fa-share-nodes"></i></button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterByCategory(category, element) {
+      activeCategory = category;
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      renderCertificates(certificatesData);
+    }
+
+    function debounceSearch() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const filtered = certificatesData.filter(c => 
+          c.title.toLowerCase().includes(query) ||
+          c.number.toLowerCase().includes(query) ||
+          c.issuer.toLowerCase().includes(query) ||
+          c.category.toLowerCase().includes(query)
+        );
+        renderCertificates(filtered);
+      }, 300);
+    }
+
+    /* ==========================================================================
+       6. CLOUDINARY UPLOAD & SAVE FIRESTORE
+       ========================================================================== */
+    async function uploadToCloudinary(file, progressCallback) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', cloudinaryConfig.apiUrl, true);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && progressCallback) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressCallback(percent);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const res = JSON.parse(xhr.responseText);
+            resolve(res.secure_url);
+          } else {
+            reject(new Error('Gagal mengunggah ke Cloudinary. Pastikan Preset diset ke Unsigned!'));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Koneksi jaringan terganggu'));
+        xhr.send(formData);
+      });
+    }
+
+    async function handleUploadCertificate(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('up-title').value;
+      const issuer = document.getElementById('up-issuer').value;
+      const category = document.getElementById('up-category').value;
+      const date = document.getElementById('up-date').value;
+      const number = document.getElementById('up-number').value;
+      const desc = document.getElementById('up-desc').value;
+
+      const imgFile = document.getElementById('up-file-img').files[0];
+      const pdfFile = document.getElementById('up-file-pdf').files[0];
+
+      if (!imgFile) {
+        Toast.fire({ icon: 'warning', title: 'File gambar wajib diunggah' });
+        return;
+      }
+
+      // Validasi Ukuran File (Image: 10MB, PDF: 25MB)
+      if (imgFile.size > 10 * 1024 * 1024) {
+        Toast.fire({ icon: 'error', title: 'Ukuran gambar maksimal 10MB' });
+        return;
+      }
+      if (pdfFile && pdfFile.size > 25 * 1024 * 1024) {
+        Toast.fire({ icon: 'error', title: 'Ukuran PDF maksimal 25MB' });
+        return;
+      }
+
+      const progressContainer = document.getElementById('upload-progress-container');
+      const progressBar = document.getElementById('upload-progress-bar');
+      const progressText = document.getElementById('upload-percentage');
+      const submitBtn = document.getElementById('btn-submit-upload');
+
+      progressContainer.style.display = 'block';
+      submitBtn.disabled = true;
+
+      try {
+        // 1. Upload Gambar
+        progressText.innerText = 'Uploading Image...';
+        const imageUrl = await uploadToCloudinary(imgFile, (p) => {
+          progressBar.style.width = `${p}%`;
+          progressText.innerText = `${p}%`;
+        });
+
+        // 2. Upload PDF (jika ada)
+        let pdfUrl = '';
+        if (pdfFile) {
+          progressText.innerText = 'Uploading PDF...';
+          pdfUrl = await uploadToCloudinary(pdfFile, (p) => {
+            progressBar.style.width = `${p}%`;
+          });
+        }
+
+        // 3. Generate verification QR code Data URL
+        const certId = generateUUID();
+        const verifyUrl = `https://arsipkamil.vercel.app/verify?id=${number}`;
+        
+        // Dynamic Temp Generate QR via QRCode.js
+        const tempQrDiv = document.getElementById('qrcode-temp');
+        tempQrDiv.innerHTML = '';
+        new QRCode(tempQrDiv, { text: verifyUrl, width: 128, height: 128 });
+        
+        // Wait QR Canvas Render
+        await new Promise(r => setTimeout(r, 300));
+        const qrCanvas = tempQrDiv.querySelector('canvas');
+        const qrUrl = qrCanvas ? qrCanvas.toDataURL() : '';
+
+        // 4. Save metadata to Firestore
+        const newCert = {
+          certificateId: certId,
+          title,
+          issuer,
+          category,
+          date,
+          number,
+          description: desc,
+          imageUrl,
+          pdfUrl,
+          qrUrl,
+          verified: true,
+          favorite: false,
+          ownerUid: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('certificates').doc(certId).set(newCert);
+
+        // Record Activity
+        addActivityHistory('Upload Sertifikat', title);
+
+        Toast.fire({ icon: 'success', title: 'Sertifikat Berhasil Disimpan!' });
+        document.getElementById('form-upload-cert').reset();
+        closeBottomSheet('sheet-upload');
+
+      } catch (err) {
+        Toast.fire({ icon: 'error', title: err.message });
+      } finally {
+        progressContainer.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    }
+
+    /* ==========================================================================
+       7. CERTIFICATE DETAIL & ACTIONS
+       ========================================================================== */
+    function openCertificateDetail(certId) {
+      const item = certificatesData.find(c => c.id === certId);
+      if (!item) return;
+
+      const container = document.getElementById('detail-container');
+      container.innerHTML = `
+        <div class="glass-card" style="padding: 16px; margin-bottom: 20px;">
+          <img src="${sanitize(item.imageUrl)}" style="width: 100%; border-radius: var(--radius-sm); margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);" alt="Detail">
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <span style="font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase;">${sanitize(item.category)}</span>
+              <h3 style="font-family: var(--font-pop); font-size: 18px; margin-top: 2px;">${sanitize(item.title)}</h3>
+            </div>
+            <div style="background: rgba(34,197,94,0.2); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+              VERIFIED
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px;">
+            <div style="margin-bottom: 8px;"><strong>Penerbit:</strong> ${sanitize(item.issuer)}</div>
+            <div style="margin-bottom: 8px;"><strong>Tanggal:</strong> ${sanitize(item.date)}</div>
+            <div style="margin-bottom: 8px;"><strong>Nomor:</strong> ${sanitize(item.number)}</div>
+            <div><strong>Catatan:</strong> ${sanitize(item.description || '-')}</div>
+          </div>
+
+          <!-- Generated QR Code Display -->
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="background: #fff; padding: 10px; display: inline-block; border-radius: 12px;">
+              <img src="${item.qrUrl}" width="120" height="120" alt="QR Verify">
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Pindai QR ini untuk verifikasi publik</div>
+          </div>
+
+          <!-- Download & Action Buttons -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <a href="${item.imageUrl}" target="_blank" download class="btn-secondary" style="text-decoration: none;">
+              <i class="fa-solid fa-image"></i> Download Gambar
+            </a>
+            ${item.pdfUrl ? `
+              <a href="${item.pdfUrl}" target="_blank" download class="btn-primary" style="text-decoration: none;">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF
+              </a>
+            ` : `
+              <button class="btn-secondary" disabled style="opacity: 0.5;"><i class="fa-solid fa-file-pdf"></i> PDF N/A</button>
+            `}
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-secondary" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4);" onclick="deleteCertificate('${item.id}')">
+              <i class="fa-solid fa-trash"></i> Hapus
+            </button>
+            <button class="btn-secondary" onclick="shareCertificate('${item.id}')">
+              <i class="fa-solid fa-share-nodes"></i> Bagikan
+            </button>
+          </div>
+        </div>
+      `;
+
+      navigateTo('detail');
+    }
+
+    async function toggleFavorite(id, status) {
+      await db.collection('certificates').doc(id).update({ favorite: status });
+      Toast.fire({ icon: 'success', title: status ? 'Ditambah ke Favorit' : 'Dihapus dari Favorit' });
+    }
+
+    async function deleteCertificate(id) {
+      Swal.fire({
+        title: 'Hapus Sertifikat?',
+        text: 'Data yang dihapus tidak bisa dikembalikan!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        background: '#063A32',
+        color: '#fff'
+      }).then(async (res) => {
+        if (res.isConfirmed) {
+          await db.collection('certificates').doc(id).delete();
+          addActivityHistory('Hapus Sertifikat', id);
+          Toast.fire({ icon: 'success', title: 'Sertifikat Dihapus' });
+          navigateTo('dashboard');
+        }
+      });
+    }
+
+    function shareCertificate(id) {
+      const item = certificatesData.find(c => c.id === id);
+      if (!item) return;
+
+      const shareUrl = `https://arsipkamil.vercel.app/verify?id=${item.number}`;
+      if (navigator.share) {
+        navigator.share({
+          title: item.title,
+          text: `Sertifikat Digital Verified: ${item.title} - ${item.issuer}`,
+          url: shareUrl
+        });
+      } else {
+        navigator.clipboard.writeText(shareUrl);
+        Toast.fire({ icon: 'info', title: 'Link Verifikasi Disalin!' });
+      }
+      addActivityHistory('Bagikan Sertifikat', item.title);
+    }
+
+    /* ==========================================================================
+       8. VERIFICATION SYSTEM & SCANNER
+       ========================================================================== */
+    async function verifyCertificateByNumber() {
+      const number = document.getElementById('verify-input-number').value.trim();
+      const resultBox = document.getElementById('verify-result-box');
+
+      if (!number) {
+        Toast.fire({ icon: 'warning', title: 'Masukkan nomor sertifikat' });
+        return;
+      }
+
+      resultBox.innerHTML = `<div class="glass-card skeleton" style="height: 150px;"></div>`;
+
+      try {
+        const snapshot = await db.collection('certificates')
+          .where('number', '==', number)
+          .get();
+
+        if (snapshot.empty) {
+          resultBox.innerHTML = `
+            <div class="glass-card" style="padding: 24px; text-align: center; border-color: rgba(239, 68, 68, 0.4);">
+              <i class="fa-solid fa-circle-xmark" style="font-size: 50px; color: var(--danger); margin-bottom: 12px;"></i>
+              <h3 style="font-family: var(--font-pop); color: #FCA5A5;">❌ Certificate Not Found</h3>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Nomor sertifikat <strong>${sanitize(number)}</strong> tidak terdaftar dalam sistem verifikasi Vault Arsip Kamil.</p>
+            </div>
+          `;
+        } else {
+          const cert = snapshot.docs[0].data();
+          resultBox.innerHTML = `
+            <div class="glass-card" style="padding: 24px; text-align: center; border-color: var(--accent);">
+              <i class="fa-solid fa-circle-check" style="font-size: 50px; color: var(--accent); margin-bottom: 12px;"></i>
+              <h3 style="font-family: var(--font-pop); color: var(--accent);">✅ VERIFIED CERTIFICATE</h3>
+              <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 16px;">Sertifikat Sah & Terverifikasi secara Digital</p>
+
+              <div style="background: rgba(255,255,255,0.04); padding: 14px; border-radius: var(--radius-sm); text-align: left; font-size: 13px; margin-bottom: 16px;">
+                <div style="margin-bottom: 6px;"><strong>Nama Sertifikat:</strong> ${sanitize(cert.title)}</div>
+                <div style="margin-bottom: 6px;"><strong>Nomor:</strong> ${sanitize(cert.number)}</div>
+                <div style="margin-bottom: 6px;"><strong>Penerbit:</strong> ${sanitize(cert.issuer)}</div>
+                <div style="margin-bottom: 6px;"><strong>Kategori:</strong> ${sanitize(cert.category)}</div>
+                <div><strong>Tanggal Terbit:</strong> ${sanitize(cert.date)}</div>
+              </div>
+
+              <a href="${cert.imageUrl}" target="_blank" class="btn-primary" style="text-decoration:none;">
+                <i class="fa-solid fa-download"></i> Unduh Salinan Valid
+              </a>
+            </div>
+          `;
+          addActivityHistory('Verifikasi Sertifikat', number);
+        }
+      } catch (e) {
+        Toast.fire({ icon: 'error', title: e.message });
+      }
+    }
+
+    // Camera QR Scanner Functions
+    function startQRScanner() {
+      const container = document.getElementById('qr-reader-container');
+      container.style.display = 'block';
+
+      html5QrCodeScanner = new Html5Qrcode("qr-reader");
+      html5QrCodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          stopQRScanner();
+          let num = decodedText;
+          if (decodedText.includes('id=')) {
+            num = decodedText.split('id=')[1].split('&')[0];
+          }
+          document.getElementById('verify-input-number').value = num;
+          verifyCertificateByNumber();
+        },
+        (errorMessage) => { /* ignore scanning errors */ }
+      );
+    }
+
+    function stopQRScanner() {
+      if (html5QrCodeScanner) {
+        html5QrCodeScanner.stop().then(() => {
+          document.getElementById('qr-reader-container').style.display = 'none';
+        }).catch(() => {
+          document.getElementById('qr-reader-container').style.display = 'none';
+        });
+      }
+    }
+
+    /* ==========================================================================
+       9. ADVANCED FILTER & HISTORY TRACKING
+       ========================================================================== */
+    function applyAdvancedFilter() {
+      const sort = document.getElementById('filter-sort').value;
+      const status = document.getElementById('filter-status').value;
+
+      let result = [...certificatesData];
+
+      if (status === 'verified') result = result.filter(c => c.verified);
+      if (status === 'pending') result = result.filter(c => !c.verified);
+
+      if (sort === 'newest') {
+        result.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      } else {
+        result.sort((a,b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+      }
+
+      renderCertificates(result);
+      closeBottomSheet('sheet-filter');
+      Toast.fire({ icon: 'info', title: 'Filter diterapkan' });
+    }
+
+    function addActivityHistory(action, detail) {
+      const historyList = document.getElementById('history-list');
+      const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      
+      const item = document.createElement('div');
+      item.style.cssText = 'padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; display: flex; justify-content: space-between; align-items: center;';
+      item.innerHTML = `
+        <div>
+          <div style="font-weight: 600; color: var(--accent);">${sanitize(action)}</div>
+          <div style="color: var(--text-muted); font-size: 11px;">${sanitize(detail)}</div>
+        </div>
+        <div style="color: var(--text-muted); font-size: 10px;">${time}</div>
+      `;
+      historyList.prepend(item);
+    }
+
+    /* ==========================================================================
+       10. SERVICE WORKER REGISTRATION (INLINE VIA BLOB FOR PWA)
+       ========================================================================== */
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE_NAME = 'arsip-kamil-v1';
+        self.addEventListener('install', e => {
+          e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
+        });
+        self.addEventListener('fetch', e => {
+          e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+        });
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      const blobUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(blobUrl).catch(() => {});
+    }
+  </script>
+</body>
+</html>
