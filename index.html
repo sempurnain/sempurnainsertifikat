@@ -240,13 +240,24 @@
     /* Auth Page Styling */
     #page-auth { 
       min-height: 100vh; 
-      padding: 40px 24px; 
+      padding: 30px 20px; 
       display: none; 
       flex-direction: column; 
-      justify-content: center; 
+      justify-content: flex-start;
+      padding-bottom: 40px;
     }
     #page-auth.active {
       display: flex;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 35px;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     }
 
     /* ==========================================================================
@@ -425,7 +436,7 @@
     .icon-action-btn:hover, .icon-action-btn.active { color: var(--accent); }
 
     /* ==========================================================================
-       6. CUSTOM BOTTOM NAVIGATION (SEPERTI GAMBAR CONTOH)
+       6. CUSTOM BOTTOM NAVIGATION
        ========================================================================== */
     .bottom-nav {
       position: fixed;
@@ -438,7 +449,7 @@
       background: #ffffff;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
-      display: none; /* Disembunyikan saat di halaman login */
+      display: none;
       justify-content: space-around;
       align-items: center;
       z-index: 1000;
@@ -470,7 +481,6 @@
       font-weight: 700;
     }
 
-    /* Tombol Tengah (Beranda) Berukuran Besar */
     .nav-item.nav-home-center {
       position: relative;
       top: -22px;
@@ -493,7 +503,7 @@
     }
 
     .nav-item.nav-home-center span {
-      display: none; /* Menyembunyikan teks untuk tombol lingkaran utama */
+      display: none;
     }
 
     /* ==========================================================================
@@ -593,10 +603,11 @@
   <div id="app-container">
 
     <!-- ==========================================================================
-         PAGE 1: AUTHENTICATION (LOGIN / REGISTER)
+         PAGE 1: AUTHENTICATION (LOGIN / REGISTER) + PUBLIC VERIFICATION
          ========================================================================== -->
     <section id="page-auth" class="page">
-      <div style="text-align: center; margin-bottom: 30px;">
+      <!-- Header Login -->
+      <div style="text-align: center; margin-bottom: 24px;">
         <div class="splash-logo-box" style="width: 70px; height: 70px; font-size: 30px; margin: 0 auto;">
           <i class="fa-solid fa-award"></i>
         </div>
@@ -604,7 +615,8 @@
         <p style="font-size: 13px; color: var(--text-muted);">Kelola semua sertifikat digital Anda di satu tempat</p>
       </div>
 
-      <div class="glass-card" style="padding: 24px;">
+      <!-- Form Login -->
+      <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
         <form id="form-login" onsubmit="handleEmailLogin(event)">
           <div style="margin-bottom: 14px;">
             <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px; display: block;">Email</label>
@@ -636,6 +648,34 @@
           <span>Google Account</span>
         </button>
       </div>
+
+      <!-- PUBLIC VERIFICATION SECTION (FITUR DI HALAMAN LOGIN) -->
+      <div class="glass-card" style="padding: 20px; text-align: center; border-color: rgba(52, 211, 153, 0.3);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+          <i class="fa-solid fa-qrcode" style="font-size: 22px; color: var(--accent);"></i>
+          <h4 style="font-family: var(--font-pop); font-size: 16px;">Verifikasi Sertifikat Publik</h4>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Masukkan Kode/Nomor atau Pindai Barcode/QR untuk menguji keaslian sertifikat.</p>
+        
+        <input type="text" id="public-verify-input" class="glass-input" placeholder="Contoh: u4329721 / AK-2026-..." style="margin-bottom: 12px; text-align: center;">
+        
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" style="padding: 12px; font-size: 13px;" onclick="verifyPublicCertificate()"><i class="fa-solid fa-magnifying-glass"></i> Cek Nomor</button>
+          <button class="btn-secondary" style="padding: 12px; font-size: 13px;" onclick="startPublicQRScanner()"><i class="fa-solid fa-camera"></i> Scan QR</button>
+        </div>
+
+        <div id="public-qr-reader-container" style="display: none; margin-top: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: var(--radius-sm);">
+          <div id="public-qr-reader" style="width: 100%;"></div>
+          <button class="btn-secondary" style="margin-top: 10px; background: rgba(239, 68, 68, 0.2); font-size: 12px; padding: 8px;" onclick="stopPublicQRScanner()">Tutup Kamera</button>
+        </div>
+
+        <div id="public-verify-result" style="margin-top: 16px; text-align: left;"></div>
+      </div>
+
+      <!-- FOOTER COPYRIGHT KONTRAS -->
+      <footer class="auth-footer">
+        © 2026 cloud sertifikat digital. All rights reserved.
+      </footer>
     </section>
 
     <!-- ==========================================================================
@@ -705,7 +745,7 @@
     </section>
 
     <!-- ==========================================================================
-         PAGE 3: VERIFY CERTIFICATE
+         PAGE 3: VERIFY CERTIFICATE (SETELAH LOGIN)
          ========================================================================== -->
     <section id="page-verify" class="page">
       <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Verifikasi Sertifikat</h3>
@@ -788,35 +828,29 @@
     </section>
 
     <!-- ==========================================================================
-         CUSTOM BOTTOM NAVIGATION BAR (SESUAI FOTO)
-         URUTAN: Verifikasi, Riwayat, Beranda (Tengah Besar), Tambah Data, Profil
+         CUSTOM BOTTOM NAVIGATION BAR
          ========================================================================== -->
     <nav class="bottom-nav" id="main-bottom-nav">
-      <!-- 1. Verifikasi -->
       <div class="nav-item" onclick="navigateTo('verify', this)">
         <i class="fa-solid fa-circle-check"></i>
         <span>Verifikasi</span>
       </div>
 
-      <!-- 2. Riwayat -->
       <div class="nav-item" onclick="navigateTo('history', this)">
         <i class="fa-solid fa-clock-rotate-left"></i>
         <span>Riwayat</span>
       </div>
 
-      <!-- 3. Beranda (Tengah & Paling Besar) -->
       <div class="nav-item nav-home-center active" onclick="navigateTo('dashboard', this)">
         <i class="fa-solid fa-house"></i>
         <span>Beranda</span>
       </div>
 
-      <!-- 4. Tambah Data Sertifikat -->
       <div class="nav-item" onclick="openBottomSheet('sheet-upload')">
         <i class="fa-solid fa-circle-plus"></i>
         <span>Tambah</span>
       </div>
 
-      <!-- 5. Profil -->
       <div class="nav-item" onclick="navigateTo('profile', this)">
         <i class="fa-solid fa-user"></i>
         <span>Profil</span>
@@ -904,7 +938,67 @@
   </div>
 
   <!-- ==========================================================================
-       BOTTOM SHEET 2: FILTER & SORTING
+       BOTTOM SHEET 2: EDIT CERTIFICATE DATA (FITUR BARU)
+       ========================================================================== -->
+  <div class="bottom-sheet-overlay" id="sheet-edit">
+    <div class="bottom-sheet-content">
+      <div class="sheet-handle"></div>
+      <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Edit Data Sertifikat</h3>
+
+      <form id="form-edit-cert" onsubmit="handleUpdateCertificate(event)">
+        <input type="hidden" id="edit-cert-id">
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nama Sertifikat *</label>
+          <input type="text" id="edit-title" class="glass-input" required>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Penyelenggara / Penerbit *</label>
+          <input type="text" id="edit-issuer" class="glass-input" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Kategori *</label>
+            <select id="edit-category" class="glass-input" style="background: #063A32;" required>
+              <option value="Kuliah">Kuliah</option>
+              <option value="Seminar">Seminar</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Pelatihan">Pelatihan</option>
+              <option value="Kompetisi">Kompetisi</option>
+              <option value="Organisasi">Organisasi</option>
+              <option value="Webinar">Webinar</option>
+              <option value="Bootcamp">Bootcamp</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Tanggal Terbit *</label>
+            <input type="date" id="edit-date" class="glass-input" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Nomor Sertifikat *</label>
+          <input type="text" id="edit-number" class="glass-input" required>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Deskripsi / Catatan</label>
+          <textarea id="edit-desc" class="glass-input" rows="2"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary" onclick="closeBottomSheet('sheet-edit')">Batal</button>
+          <button type="submit" id="btn-submit-edit" class="btn-primary">Perbarui Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       BOTTOM SHEET 3: FILTER & SORTING
        ========================================================================== -->
   <div class="bottom-sheet-overlay" id="sheet-filter">
     <div class="bottom-sheet-content">
@@ -975,6 +1069,7 @@
     let activeCategory = 'Semua';
     let debounceTimer = null;
     let html5QrCodeScanner = null;
+    let publicQrCodeScanner = null;
 
     const Toast = Swal.mixin({
       toast: true,
@@ -1010,9 +1105,8 @@
       const urlParams = new URLSearchParams(window.location.search);
       const verifyId = urlParams.get('id') || urlParams.get('verify');
       if (verifyId) {
-        navigateTo('verify');
-        document.getElementById('verify-input-number').value = verifyId;
-        verifyCertificateByNumber();
+        document.getElementById('public-verify-input').value = verifyId;
+        verifyPublicCertificate();
       }
     });
 
@@ -1228,6 +1322,7 @@
           <div class="cert-actions" onclick="event.stopPropagation()">
             <span style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-hashtag"></i> ${sanitize(item.number)}</span>
             <div>
+              <button class="icon-action-btn" title="Edit Data" onclick="openEditCertificateModal('${item.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
               <button class="icon-action-btn ${item.favorite ? 'active' : ''}" onclick="toggleFavorite('${item.id}', ${!item.favorite})">
                 <i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i>
               </button>
@@ -1260,7 +1355,7 @@
     }
 
     /* ==========================================================================
-       6. CLOUDINARY UPLOAD & FIRESTORE SAVE
+       6. CLOUDINARY UPLOAD & FIRESTORE SAVE / EDIT
        ========================================================================== */
     async function uploadToCloudinary(file, progressCallback) {
       const formData = new FormData();
@@ -1386,6 +1481,70 @@
       }
     }
 
+    /* FITUR BARU: EDIT DATA SERTIFIKAT */
+    function openEditCertificateModal(certId) {
+      const item = certificatesData.find(c => c.id === certId);
+      if (!item) return;
+
+      document.getElementById('edit-cert-id').value = item.id;
+      document.getElementById('edit-title').value = item.title;
+      document.getElementById('edit-issuer').value = item.issuer;
+      document.getElementById('edit-category').value = item.category;
+      document.getElementById('edit-date').value = item.date;
+      document.getElementById('edit-number').value = item.number;
+      document.getElementById('edit-desc').value = item.description || '';
+
+      openBottomSheet('sheet-edit');
+    }
+
+    async function handleUpdateCertificate(e) {
+      e.preventDefault();
+      
+      const certId = document.getElementById('edit-cert-id').value;
+      const title = document.getElementById('edit-title').value;
+      const issuer = document.getElementById('edit-issuer').value;
+      const category = document.getElementById('edit-category').value;
+      const date = document.getElementById('edit-date').value;
+      const number = document.getElementById('edit-number').value;
+      const desc = document.getElementById('edit-desc').value;
+
+      const submitBtn = document.getElementById('btn-submit-edit');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<div class="loader-ring" style="width:18px;height:18px;"></div> Mengisi...`;
+
+      try {
+        // Regenerate QR jika nomor berubah
+        const verifyUrl = `https://arsipkamil.vercel.app/verify?id=${number}`;
+        const tempQrDiv = document.getElementById('qrcode-temp');
+        tempQrDiv.innerHTML = '';
+        new QRCode(tempQrDiv, { text: verifyUrl, width: 128, height: 128 });
+        
+        await new Promise(r => setTimeout(r, 200));
+        const qrCanvas = tempQrDiv.querySelector('canvas');
+        const qrUrl = qrCanvas ? qrCanvas.toDataURL() : '';
+
+        await db.collection('certificates').doc(certId).update({
+          title,
+          issuer,
+          category,
+          date,
+          number,
+          description: desc,
+          qrUrl,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        addActivityHistory('Edit Sertifikat', title);
+        Toast.fire({ icon: 'success', title: 'Data Sertifikat Diperbarui!' });
+        closeBottomSheet('sheet-edit');
+      } catch (err) {
+        Toast.fire({ icon: 'error', title: err.message });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `Perbarui Data`;
+      }
+    }
+
     /* ==========================================================================
        7. CERTIFICATE DETAIL & ACTIONS
        ========================================================================== */
@@ -1438,6 +1597,9 @@
           <div style="display: flex; gap: 10px;">
             <button class="btn-secondary" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4);" onclick="deleteCertificate('${item.id}')">
               <i class="fa-solid fa-trash"></i> Hapus
+            </button>
+            <button class="btn-secondary" onclick="openEditCertificateModal('${item.id}')">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
             </button>
             <button class="btn-secondary" onclick="shareCertificate('${item.id}')">
               <i class="fa-solid fa-share-nodes"></i> Bagikan
@@ -1494,6 +1656,86 @@
     /* ==========================================================================
        8. VERIFICATION SYSTEM & SCANNER
        ========================================================================== */
+    // Verifikasi Publik (Halaman Login Sebelum Masuk)
+    async function verifyPublicCertificate() {
+      const number = document.getElementById('public-verify-input').value.trim();
+      const resultBox = document.getElementById('public-verify-result');
+
+      if (!number) {
+        Toast.fire({ icon: 'warning', title: 'Masukkan nomor sertifikat' });
+        return;
+      }
+
+      resultBox.innerHTML = `<div class="glass-card skeleton" style="height: 120px;"></div>`;
+
+      try {
+        const snapshot = await db.collection('certificates')
+          .where('number', '==', number)
+          .get();
+
+        if (snapshot.empty) {
+          resultBox.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); padding: 14px; border-radius: var(--radius-sm); text-align: center;">
+              <i class="fa-solid fa-circle-xmark" style="font-size: 30px; color: var(--danger); margin-bottom: 6px;"></i>
+              <h4 style="font-family: var(--font-pop); color: #FCA5A5; font-size: 14px;">Sertifikat Tidak Ditemukan</h4>
+              <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Nomor <strong>${sanitize(number)}</strong> tidak terdaftar.</p>
+            </div>
+          `;
+        } else {
+          const cert = snapshot.docs[0].data();
+          resultBox.innerHTML = `
+            <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid var(--accent); padding: 14px; border-radius: var(--radius-sm); text-align: left;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <i class="fa-solid fa-circle-check" style="font-size: 20px; color: var(--accent);"></i>
+                <h4 style="font-family: var(--font-pop); color: var(--accent); font-size: 14px;">SERTIFIKAT SAH / VERIFIED</h4>
+              </div>
+              <div style="font-size: 12px; line-height: 1.5; color: #fff;">
+                <div><strong>Nama:</strong> ${sanitize(cert.title)}</div>
+                <div><strong>Nomor:</strong> ${sanitize(cert.number)}</div>
+                <div><strong>Penerbit:</strong> ${sanitize(cert.issuer)}</div>
+                <div><strong>Kategori:</strong> ${sanitize(cert.category)}</div>
+                <div><strong>Tanggal:</strong> ${sanitize(cert.date)}</div>
+              </div>
+            </div>
+          `;
+        }
+      } catch (e) {
+        Toast.fire({ icon: 'error', title: e.message });
+      }
+    }
+
+    function startPublicQRScanner() {
+      const container = document.getElementById('public-qr-reader-container');
+      container.style.display = 'block';
+
+      publicQrCodeScanner = new Html5Qrcode("public-qr-reader");
+      publicQrCodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 200, height: 200 } },
+        (decodedText) => {
+          stopPublicQRScanner();
+          let num = decodedText;
+          if (decodedText.includes('id=')) {
+            num = decodedText.split('id=')[1].split('&')[0];
+          }
+          document.getElementById('public-verify-input').value = num;
+          verifyPublicCertificate();
+        },
+        (errorMessage) => {}
+      );
+    }
+
+    function stopPublicQRScanner() {
+      if (publicQrCodeScanner) {
+        publicQrCodeScanner.stop().then(() => {
+          document.getElementById('public-qr-reader-container').style.display = 'none';
+        }).catch(() => {
+          document.getElementById('public-qr-reader-container').style.display = 'none';
+        });
+      }
+    }
+
+    // Verifikasi Internal (Setelah Login)
     async function verifyCertificateByNumber() {
       const number = document.getElementById('verify-input-number').value.trim();
       const resultBox = document.getElementById('verify-result-box');
