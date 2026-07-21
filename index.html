@@ -19,7 +19,7 @@
   <link rel="icon" type="image/png" href="https://img.icons8.com/isometric/96/certificate.png">
   <link rel="apple-touch-icon" href="https://img.icons8.com/isometric/180/certificate.png">
 
-  <!-- Web App Manifest (Inlined via Data URI) -->
+  <!-- Web App Manifest -->
   <link rel="manifest" href='data:application/json,{"name":"Arsip Kamil","short_name":"ArsipKamil","start_url":".","display":"standalone","background_color":"#021E1A","theme_color":"#021E1A","icons":[{"src":"https://img.icons8.com/isometric/192/certificate.png","sizes":"192x192","type":"image/png"},{"src":"https://img.icons8.com/isometric/512/certificate.png","sizes":"512x512","type":"image/png"}]}'>
 
   <!-- Google Fonts -->
@@ -42,7 +42,7 @@
 
   <style>
     /* ==========================================================================
-       1. VARIABLES & RESET (Mobile First Dark Emerald Glassmorphism)
+       1. VARIABLES & RESET
        ========================================================================== */
     :root {
       --bg-gradient: linear-gradient(180deg, #021E1A 0%, #063A32 50%, #0A5B4C 100%);
@@ -85,7 +85,6 @@
       overflow-x: hidden;
     }
 
-    /* Target Layar Mobile (320px - 480px) */
     #app-container {
       width: 100%;
       max-width: 480px;
@@ -99,12 +98,11 @@
       padding-bottom: 90px;
     }
 
-    /* Scrollbar Styling */
     #app-container::-webkit-scrollbar { width: 4px; }
     #app-container::-webkit-scrollbar-thumb { background: rgba(52, 211, 153, 0.3); border-radius: 10px; }
 
     /* ==========================================================================
-       2. GLASSMORPHISM COMPONENTS & UTILITIES
+       2. GLASSMORPHISM COMPONENTS
        ========================================================================== */
     .glass-card {
       background: var(--glass-card);
@@ -212,7 +210,6 @@
       50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(52,211,153,0.7); }
     }
 
-    /* Loader Spinner */
     .loader-ring {
       width: 32px;
       height: 32px;
@@ -225,7 +222,7 @@
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
     /* ==========================================================================
-       4. PAGES FRAMEWORK & AUTH PAGE
+       4. PAGES FRAMEWORK
        ========================================================================== */
     .page {
       display: none;
@@ -240,11 +237,20 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Login Page Styling */
-    #page-auth { min-height: 100vh; padding: 40px 24px; display: flex; flex-direction: column; justify-content: center; }
+    /* Auth Page Styling */
+    #page-auth { 
+      min-height: 100vh; 
+      padding: 40px 24px; 
+      display: none; 
+      flex-direction: column; 
+      justify-content: center; 
+    }
+    #page-auth.active {
+      display: flex;
+    }
 
     /* ==========================================================================
-       5. HEADER & DASHBOARD
+       5. DASHBOARD COMPONENTS
        ========================================================================== */
     .header-user {
       display: flex;
@@ -278,7 +284,6 @@
       position: relative;
     }
 
-    /* Search & Filter Bar */
     .search-container {
       display: flex;
       gap: 10px;
@@ -298,7 +303,6 @@
       cursor: pointer;
     }
 
-    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -326,7 +330,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* Categories Horizontal Scroll */
     .category-scroll {
       display: flex;
       gap: 8px;
@@ -357,7 +360,6 @@
       box-shadow: 0 4px 12px rgba(34,197,94,0.3);
     }
 
-    /* Certificate Grid & Cards */
     .cert-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -422,35 +424,8 @@
 
     .icon-action-btn:hover, .icon-action-btn.active { color: var(--accent); }
 
-    /* Floating Action Button (FAB) */
-    .fab-upload {
-      position: fixed;
-      bottom: 85px;
-      right: calc(50% - 220px + 20px);
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #021E1A;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
-      z-index: 900;
-      cursor: pointer;
-      transition: var(--transition);
-      border: 2px solid rgba(255,255,255,0.3);
-    }
-
-    @media (max-width: 480px) {
-      .fab-upload { right: 20px; }
-    }
-
-    .fab-upload:active { transform: scale(0.9); }
-
     /* ==========================================================================
-       6. BOTTOM NAVIGATION BAR
+       6. CUSTOM BOTTOM NAVIGATION (SEPERTI GAMBAR CONTOH)
        ========================================================================== */
     .bottom-nav {
       position: fixed;
@@ -459,32 +434,66 @@
       transform: translateX(-50%);
       width: 100%;
       max-width: 480px;
-      height: 70px;
-      background: rgba(2, 30, 26, 0.85);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--glass-border);
-      display: flex;
-      justify-style: space-around;
+      height: 72px;
+      background: #ffffff;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      display: none; /* Disembunyikan saat di halaman login */
+      justify-content: space-around;
       align-items: center;
       z-index: 1000;
+      box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+      padding: 0 10px;
     }
 
     .nav-item {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      color: var(--text-muted);
+      color: #8E9BAE;
       font-size: 11px;
+      font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
+      text-decoration: none;
     }
 
-    .nav-item i { font-size: 18px; }
+    .nav-item i {
+      font-size: 20px;
+    }
 
     .nav-item.active {
-      color: var(--accent);
-      font-weight: 600;
+      color: #0F5257;
+      font-weight: 700;
+    }
+
+    /* Tombol Tengah (Beranda) Berukuran Besar */
+    .nav-item.nav-home-center {
+      position: relative;
+      top: -22px;
+      flex: none;
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #10B981 0%, #0F5257 100%);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+      border: 4px solid #ffffff;
+      color: #ffffff;
+    }
+
+    .nav-item.nav-home-center i {
+      font-size: 28px;
+      color: #ffffff;
+    }
+
+    .nav-item.nav-home-center span {
+      display: none; /* Menyembunyikan teks untuk tombol lingkaran utama */
     }
 
     /* ==========================================================================
@@ -536,7 +545,7 @@
     }
 
     /* ==========================================================================
-       8. SKELETON LOADING
+       8. UTILITIES & SKELETON
        ========================================================================== */
     .skeleton {
       background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
@@ -550,9 +559,6 @@
       100% { background-position: -200% 0; }
     }
 
-    /* ==========================================================================
-       9. EMPTY STATE
-       ========================================================================== */
     .empty-state {
       text-align: center;
       padding: 40px 20px;
@@ -583,7 +589,7 @@
     </div>
   </div>
 
-  <!-- MAIN APP CONTAINER (MAX-WIDTH 480PX MOBILE FIRST) -->
+  <!-- MAIN APP CONTAINER -->
   <div id="app-container">
 
     <!-- ==========================================================================
@@ -633,9 +639,9 @@
     </section>
 
     <!-- ==========================================================================
-         PAGE 2: DASHBOARD
+         PAGE 2: DASHBOARD (BERANDA)
          ========================================================================== -->
-    <section id="page-dashboard" class="page active">
+    <section id="page-dashboard" class="page">
       <!-- User Header -->
       <div class="header-user">
         <div class="user-profile-info">
@@ -691,9 +697,8 @@
         <div class="cat-chip" onclick="filterByCategory('Lainnya', this)">Lainnya</div>
       </div>
 
-      <!-- Certificate Grid / List -->
+      <!-- Certificate Grid -->
       <div class="cert-grid" id="cert-container">
-        <!-- Skeleton Loading State Initial -->
         <div class="glass-card skeleton" style="height: 220px;"></div>
         <div class="glass-card skeleton" style="height: 220px;"></div>
       </div>
@@ -717,13 +722,11 @@
         </div>
       </div>
 
-      <!-- Container Scanner Camera -->
       <div id="qr-reader-container" class="glass-card" style="display: none; padding: 15px; margin-bottom: 20px;">
         <div id="qr-reader" style="width: 100%;"></div>
         <button class="btn-secondary" style="margin-top: 10px; background: rgba(239, 68, 68, 0.2);" onclick="stopQRScanner()">Tutup Kamera</button>
       </div>
 
-      <!-- Verification Result View -->
       <div id="verify-result-box"></div>
     </section>
 
@@ -733,7 +736,6 @@
     <section id="page-history" class="page">
       <h3 style="font-family: var(--font-pop); margin-bottom: 16px;">Riwayat Aktivitas</h3>
       <div id="history-list" class="glass-card" style="padding: 10px;">
-        <!-- Filled dynamically -->
       </div>
     </section>
 
@@ -785,27 +787,36 @@
       <div id="detail-container"></div>
     </section>
 
-    <!-- FLOATING ACTION BUTTON (UPLOAD) -->
-    <div class="fab-upload" id="fab-upload-btn" onclick="openBottomSheet('sheet-upload')">
-      <i class="fa-solid fa-plus"></i>
-    </div>
-
     <!-- ==========================================================================
-         BOTTOM NAVIGATION BAR
+         CUSTOM BOTTOM NAVIGATION BAR (SESUAI FOTO)
+         URUTAN: Verifikasi, Riwayat, Beranda (Tengah Besar), Tambah Data, Profil
          ========================================================================== -->
     <nav class="bottom-nav" id="main-bottom-nav">
-      <div class="nav-item active" onclick="navigateTo('dashboard', this)">
-        <i class="fa-solid fa-house"></i>
-        <span>Beranda</span>
-      </div>
+      <!-- 1. Verifikasi -->
       <div class="nav-item" onclick="navigateTo('verify', this)">
         <i class="fa-solid fa-circle-check"></i>
         <span>Verifikasi</span>
       </div>
+
+      <!-- 2. Riwayat -->
       <div class="nav-item" onclick="navigateTo('history', this)">
         <i class="fa-solid fa-clock-rotate-left"></i>
         <span>Riwayat</span>
       </div>
+
+      <!-- 3. Beranda (Tengah & Paling Besar) -->
+      <div class="nav-item nav-home-center active" onclick="navigateTo('dashboard', this)">
+        <i class="fa-solid fa-house"></i>
+        <span>Beranda</span>
+      </div>
+
+      <!-- 4. Tambah Data Sertifikat -->
+      <div class="nav-item" onclick="openBottomSheet('sheet-upload')">
+        <i class="fa-solid fa-circle-plus"></i>
+        <span>Tambah</span>
+      </div>
+
+      <!-- 5. Profil -->
       <div class="nav-item" onclick="navigateTo('profile', this)">
         <i class="fa-solid fa-user"></i>
         <span>Profil</span>
@@ -874,7 +885,6 @@
           <input type="file" id="up-file-pdf" class="glass-input" accept="application/pdf">
         </div>
 
-        <!-- Progress Bar Upload -->
         <div id="upload-progress-container" style="display: none; margin-bottom: 15px;">
           <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">
             <span>Mengunggah ke Cloudinary...</span>
@@ -922,20 +932,18 @@
     </div>
   </div>
 
-  <!-- Hidden Container tempat QRCode.js meng-generate QR DOM -->
   <div id="qrcode-temp" style="display: none;"></div>
 
   <!-- ==========================================================================
        JAVASCRIPT APP LOGIC & SDK INTEGRATION
        ========================================================================== -->
-  <!-- Firebase SDK Modular / Compat CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
   <script>
     /* ==========================================================================
-       1. CONFIGURATIONS (FIREBASE & CLOUDINARY HASIL UPDATE)
+       1. CONFIGURATIONS
        ========================================================================== */
     const firebaseConfig = {
       apiKey: "AIzaSyAtuVo1-Ic6PeNGdLzYSlOZza-66yf0jic",
@@ -953,7 +961,6 @@
       apiUrl: "https://api.cloudinary.com/v1_1/dr3evkwcu/auto/upload"
     };
 
-    // Initialize Firebase
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -969,7 +976,6 @@
     let debounceTimer = null;
     let html5QrCodeScanner = null;
 
-    // Toast Notification SweetAlert2 Helper
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
@@ -980,7 +986,6 @@
       color: '#fff'
     });
 
-    // Helper Utility Sanitize Input (Anti-XSS)
     function sanitize(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, function(m) {
@@ -988,7 +993,6 @@
       });
     }
 
-    // Helper UUID Generator
     function generateUUID() {
       return 'ax-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
     }
@@ -997,14 +1001,12 @@
        3. LIFECYCLE & AUTHENTICATION
        ========================================================================== */
     window.addEventListener('DOMContentLoaded', () => {
-      // Hide Splash Screen delay
       setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         splash.style.opacity = '0';
         setTimeout(() => splash.style.display = 'none', 600);
       }, 1200);
 
-      // Check URL parameters for direct verification link (?id=xxxx)
       const urlParams = new URLSearchParams(window.location.search);
       const verifyId = urlParams.get('id') || urlParams.get('verify');
       if (verifyId) {
@@ -1014,7 +1016,7 @@
       }
     });
 
-    // Firebase Auth Observer
+    // Observer Auth: Mengatur Tampilan Laman & Bottom Nav
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
@@ -1025,24 +1027,26 @@
         document.getElementById('profile-page-email').innerText = user.email;
         document.getElementById('profile-page-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=10B981&color=fff`;
 
+        // Sembunyikan halaman Auth & Munculkan Footer Nav
         document.getElementById('page-auth').classList.remove('active');
         document.getElementById('main-bottom-nav').style.display = 'flex';
-        document.getElementById('fab-upload-btn').style.display = 'flex';
 
-        // Bind Realtime Firestore
+        // Pindah otomatis ke Laman Beranda (Dashboard)
+        const homeNavBtn = document.querySelector('.nav-home-center');
+        navigateTo('dashboard', homeNavBtn);
+
         listenRealtimeCertificates();
       } else {
         currentUser = null;
-        document.getElementById('page-auth').classList.add('active');
-        document.getElementById('main-bottom-nav').style.display = 'none';
-        document.getElementById('fab-upload-btn').style.display = 'none';
-        // Hide all pages
+        // Sembunyikan semua laman & Sembunyikan Footer Nav
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('main-bottom-nav').style.display = 'none';
+        
+        // Tampilkan hanya Laman Auth
         document.getElementById('page-auth').classList.add('active');
       }
     });
 
-    // Password Visibility Toggle
     function togglePasswordVisibility() {
       const input = document.getElementById('auth-password');
       const icon = document.getElementById('toggle-pwd');
@@ -1051,11 +1055,10 @@
         icon.classList.replace('fa-eye', 'fa-eye-slash');
       } else {
         input.type = 'password';
-        icon.classList.replace('fa-slash', 'fa-eye');
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
       }
     }
 
-    // Email Login
     async function handleEmailLogin(e) {
       e.preventDefault();
       const email = document.getElementById('auth-email').value;
@@ -1069,7 +1072,6 @@
         await auth.signInWithEmailAndPassword(email, pwd);
         Toast.fire({ icon: 'success', title: 'Berhasil Masuk!' });
       } catch (err) {
-        // Fallback Auto-register jika user belum ada
         try {
           await auth.createUserWithEmailAndPassword(email, pwd);
           Toast.fire({ icon: 'success', title: 'Akun Baru Berhasil Dibuat!' });
@@ -1082,7 +1084,6 @@
       }
     }
 
-    // Google Login
     async function handleGoogleLogin() {
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
@@ -1093,7 +1094,6 @@
       }
     }
 
-    // Lupa Password
     function handleForgotPassword() {
       Swal.fire({
         title: 'Reset Password',
@@ -1115,7 +1115,6 @@
       });
     }
 
-    // Logout
     function handleLogout() {
       Swal.fire({
         title: 'Keluar Akun?',
@@ -1134,7 +1133,7 @@
     }
 
     /* ==========================================================================
-       4. NAVIGATION & BOTTOM SHEET CONTROLLER
+       4. NAVIGATION CONTROLLER
        ========================================================================== */
     function navigateTo(pageId, navElement = null) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1156,7 +1155,6 @@
       document.getElementById(id).classList.remove('active');
     }
 
-    // Overlay Close Click Listener
     document.querySelectorAll('.bottom-sheet-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('active');
@@ -1208,7 +1206,7 @@
           <div class="glass-card empty-state">
             <i class="fa-solid fa-folder-open empty-icon"></i>
             <h4 style="font-family: var(--font-pop);">Belum Ada Sertifikat</h4>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Klik tombol '+' di bawah untuk menyimpan sertifikat pertama Anda.</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Klik menu 'Tambah' di bawah untuk menyimpan sertifikat pertama Anda.</p>
           </div>
         `;
         return;
@@ -1262,7 +1260,7 @@
     }
 
     /* ==========================================================================
-       6. CLOUDINARY UPLOAD & SAVE FIRESTORE
+       6. CLOUDINARY UPLOAD & FIRESTORE SAVE
        ========================================================================== */
     async function uploadToCloudinary(file, progressCallback) {
       const formData = new FormData();
@@ -1285,7 +1283,7 @@
             const res = JSON.parse(xhr.responseText);
             resolve(res.secure_url);
           } else {
-            reject(new Error('Gagal mengunggah ke Cloudinary. Pastikan Preset diset ke Unsigned!'));
+            reject(new Error('Gagal mengunggah ke Cloudinary.'));
           }
         };
 
@@ -1312,7 +1310,6 @@
         return;
       }
 
-      // Validasi Ukuran File (Image: 10MB, PDF: 25MB)
       if (imgFile.size > 10 * 1024 * 1024) {
         Toast.fire({ icon: 'error', title: 'Ukuran gambar maksimal 10MB' });
         return;
@@ -1331,14 +1328,12 @@
       submitBtn.disabled = true;
 
       try {
-        // 1. Upload Gambar
         progressText.innerText = 'Uploading Image...';
         const imageUrl = await uploadToCloudinary(imgFile, (p) => {
           progressBar.style.width = `${p}%`;
           progressText.innerText = `${p}%`;
         });
 
-        // 2. Upload PDF (jika ada)
         let pdfUrl = '';
         if (pdfFile) {
           progressText.innerText = 'Uploading PDF...';
@@ -1347,21 +1342,17 @@
           });
         }
 
-        // 3. Generate verification QR code Data URL
         const certId = generateUUID();
         const verifyUrl = `https://arsipkamil.vercel.app/verify?id=${number}`;
         
-        // Dynamic Temp Generate QR via QRCode.js
         const tempQrDiv = document.getElementById('qrcode-temp');
         tempQrDiv.innerHTML = '';
         new QRCode(tempQrDiv, { text: verifyUrl, width: 128, height: 128 });
         
-        // Wait QR Canvas Render
         await new Promise(r => setTimeout(r, 300));
         const qrCanvas = tempQrDiv.querySelector('canvas');
         const qrUrl = qrCanvas ? qrCanvas.toDataURL() : '';
 
-        // 4. Save metadata to Firestore
         const newCert = {
           certificateId: certId,
           title,
@@ -1381,8 +1372,6 @@
         };
 
         await db.collection('certificates').doc(certId).set(newCert);
-
-        // Record Activity
         addActivityHistory('Upload Sertifikat', title);
 
         Toast.fire({ icon: 'success', title: 'Sertifikat Berhasil Disimpan!' });
@@ -1426,7 +1415,6 @@
             <div><strong>Catatan:</strong> ${sanitize(item.description || '-')}</div>
           </div>
 
-          <!-- Generated QR Code Display -->
           <div style="text-align: center; margin-bottom: 20px;">
             <div style="background: #fff; padding: 10px; display: inline-block; border-radius: 12px;">
               <img src="${item.qrUrl}" width="120" height="120" alt="QR Verify">
@@ -1434,7 +1422,6 @@
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Pindai QR ini untuk verifikasi publik</div>
           </div>
 
-          <!-- Download & Action Buttons -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
             <a href="${item.imageUrl}" target="_blank" download class="btn-secondary" style="text-decoration: none;">
               <i class="fa-solid fa-image"></i> Download Gambar
@@ -1559,7 +1546,6 @@
       }
     }
 
-    // Camera QR Scanner Functions
     function startQRScanner() {
       const container = document.getElementById('qr-reader-container');
       container.style.display = 'block';
@@ -1577,7 +1563,7 @@
           document.getElementById('verify-input-number').value = num;
           verifyCertificateByNumber();
         },
-        (errorMessage) => { /* ignore scanning errors */ }
+        (errorMessage) => {}
       );
     }
 
@@ -1631,7 +1617,7 @@
     }
 
     /* ==========================================================================
-       10. SERVICE WORKER REGISTRATION (INLINE VIA BLOB FOR PWA)
+       10. SERVICE WORKER
        ========================================================================== */
     if ('serviceWorker' in navigator) {
       const swCode = `
